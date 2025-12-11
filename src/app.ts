@@ -1,8 +1,8 @@
 //autobind decorator
 //ensures this always refers to the correct class instance
 function autobind(
-  _: any, 
-  _2: string, 
+  _: any,
+  _2: string,
   descriptor: PropertyDescriptor
 ) {
   const originalMethod = descriptor.value;
@@ -50,11 +50,44 @@ class ProjectInput {
     this.attach();
   }
 
+  //get user input, validate required fields are present and return values
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.descriptionInputElement.value;
+    const enteredPeople = this.peopleInputElement.value;
+
+    if (
+      enteredTitle.trim().length === 0 ||
+      enteredDescription.trim().length === 0 ||
+      enteredPeople.trim().length === 0
+    ) {
+      alert('Invalid input, please try again!');
+      return;
+    } else {
+      return [enteredTitle, enteredDescription, +enteredPeople]; //+ converts to a number
+    }
+  }
+
+  //clear form input values
+  private clearInputs() {
+    this.titleInputElement.value = '';
+    this.descriptionInputElement.value = '';
+    this.peopleInputElement.value = '';
+  }
+
+  //submit form values and clear form
   @autobind
   private submitHandler(event: Event) {
     event.preventDefault();
-    console.log(this.titleInputElement.value);
+    const userInput = this.gatherUserInput();
+
+    if (Array.isArray(userInput)) {
+      const [title, desc, people] = userInput;
+      console.log(title, desc, people);
+      this.clearInputs();
+    }
   }
+
   //Connect submit event to submitHandler method
   private configure() {
     this.element.addEventListener('submit', this.submitHandler);
