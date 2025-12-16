@@ -1,3 +1,46 @@
+//Project State Management
+class ProjectState {
+  //initialize state
+  private listeners: any[] = [];
+  private projects: any[] = [];
+  //declare a static property to hold the singleton instance
+  private static instance: ProjectState;
+
+  //prevent creating new instances
+  //enforce singleton patter do only one ProjectState exsists
+  private constructor() {};
+
+  //store instance if it exists already, else create it and store it
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+  
+  //listener function called whenever state is updated
+  addListener(listenerFn: Function) {
+    this.listeners.push(listenerFn);
+  }
+
+  //create new project and update projects state with info
+  addProject(title: string, description: string, numOfPeople: number) {
+    const newProject = {
+      id: Math.random().toString(),
+      title: title,
+      description: description,
+      people: numOfPeople
+    };
+    this.projects.push(newProject);
+    for (const listenerFn of this.listeners) {
+      listenerFn(this.projects.slice());
+    }
+  };
+}
+
+const projectState = ProjectState.getInstance();
+
 //validation 
 interface Validatable {
   value: string | number;
@@ -59,11 +102,13 @@ class ProjectList {
   hostElement: HTMLDivElement;
   element: HTMLElement;
 
-  //
+  assignedProjects: any[];
+
   constructor(private type: 'active' | 'finished') {
     //Grab template and div from DOM
     this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
     this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    this.assignedProjects = [];
 
     //Clone template content
     const importedNode = document.importNode(this.templateElement.content, true);
@@ -71,8 +116,25 @@ class ProjectList {
     this.element = importedNode.firstElementChild as HTMLElement;
     //set dynamic id based on type 
     this.element.id = `${this.type}-projects`;
+
+    projectState.addListener((projects: any[]) => {
+      this.assignedProjects = projects;
+      this, this.renderProjects();
+    });
+
     this.attach();
     this.renderContent();
+  }
+
+  //render projects 
+  //loop through assigned projects and add each as an <li>
+  private renderProjects() {
+    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    for (const prjItem of this.assignedProjects) {
+      const listItem = document.createElement('li');
+      listItem.textContent = prjItem.title;
+      listEl.appendChild(listItem);
+    }
   }
 
   //update id and text content inside cloned template
@@ -173,7 +235,7 @@ class ProjectInput {
 
     if (Array.isArray(userInput)) {
       const [title, desc, people] = userInput;
-      console.log(title, desc, people);
+      projectState.addProject(title, desc, people);
       this.clearInputs();
     }
   }
