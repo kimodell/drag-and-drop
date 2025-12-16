@@ -51,6 +51,44 @@ function autobind(
   return adjDescriptor;
 }
 
+//ProjectList Class
+//render list of porojects 
+class ProjectList {
+  //Reference to HTML elements required
+  templateElement: HTMLTemplateElement;
+  hostElement: HTMLDivElement;
+  element: HTMLElement;
+
+  //
+  constructor(private type: 'active' | 'finished') {
+    //Grab template and div from DOM
+    this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
+    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+
+    //Clone template content
+    const importedNode = document.importNode(this.templateElement.content, true);
+    //Extract first element from template
+    this.element = importedNode.firstElementChild as HTMLElement;
+    //set dynamic id based on type 
+    this.element.id = `${this.type}-projects`;
+    this.attach();
+    this.renderContent();
+  }
+
+  //update id and text content inside cloned template
+  //create unique id for each ul element and assign it to the ul inside the project list
+  private renderContent() {
+    const listId = `${this.type}-projects-list`;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS'; //set heading based ont project type
+  }
+
+  //insert project list element at the end of the #app element
+  private attach() {
+    this.hostElement.insertAdjacentElement('beforeend', this.element);
+  }
+}
+
 //ProjectInput class
 class ProjectInput {
 
@@ -152,3 +190,5 @@ class ProjectInput {
 }
 
 const prjInput = new ProjectInput();
+const activePrjList = new ProjectList('active');
+const finishedPrjList = new ProjectList('finished');
