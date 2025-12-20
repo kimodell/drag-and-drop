@@ -163,19 +163,6 @@ class ProjectList extends Componenet<HTMLDivElement, HTMLElement>{
     this.renderContent();
   }
 
-  //render projects 
-  //loop through assigned projects and add each as an <li>
-  private renderProjects() {
-    const listEl = document.getElementById(`${this.type}-projects-list`
-    )! as HTMLUListElement;
-    listEl.innerHTML = '';   //clear existing list items and re-render
-    for (const prjItem of this.assignedProjects) {
-      const listItem = document.createElement('li');
-      listItem.textContent = prjItem.title;
-      listEl.appendChild(listItem);
-    }
-  }
-
   configure() {
     //Filter project by status, add to correct assignedProjects array based on status
     projectState.addListener((projects: Project[]) => {
@@ -197,30 +184,30 @@ class ProjectList extends Componenet<HTMLDivElement, HTMLElement>{
     this.element.querySelector('ul')!.id = listId;
     this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS'; //set heading based ont project type
   }
+  
+  //render projects 
+  //loop through assigned projects and add each as an <li>
+  private renderProjects() {
+    const listEl = document.getElementById(`${this.type}-projects-list`
+    )! as HTMLUListElement;
+    listEl.innerHTML = '';   //clear existing list items and re-render
+    for (const prjItem of this.assignedProjects) {
+      const listItem = document.createElement('li');
+      listItem.textContent = prjItem.title;
+      listEl.appendChild(listItem);
+    }
+  }
 }
 
 //ProjectInput class
-class ProjectInput {
-
+class ProjectInput extends Componenet<HTMLDivElement, HTMLFormElement>{
   //Reference to HTML elements required
-  templateElement: HTMLTemplateElement;
-  hostElement: HTMLDivElement;
-  element: HTMLFormElement;
   titleInputElement: HTMLInputElement;
   descriptionInputElement: HTMLInputElement;
   peopleInputElement: HTMLInputElement;
 
   constructor() {
-    //Grab template and div from DOM
-    this.templateElement = document.getElementById('project-input')! as HTMLTemplateElement;
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
-
-    //Clone template content
-    const importedNode = document.importNode(this.templateElement.content, true);
-    //Extract form element from template
-    this.element = importedNode.firstElementChild as HTMLFormElement;
-    this.element.id = 'user-input'; //Use css style 'user-input'
-
+    super('project-input', 'app', true, 'user-input');
     // Grab references to the individual input fields inside the form
     this.titleInputElement = this.element.querySelector('#title') as HTMLInputElement;
     this.descriptionInputElement = this.element.querySelector('#description') as HTMLInputElement;
@@ -228,10 +215,14 @@ class ProjectInput {
 
     //Initate event listener
     this.configure();
-
-    //Insert form into host element
-    this.attach();
   }
+
+  //Connect submit event to submitHandler method
+  configure() {
+    this.element.addEventListener('submit', this.submitHandler);
+  }
+
+  renderContent() {}
 
   //get user input, validate required fields are present and return values
   private gatherUserInput(): [string, string, number] | void {
@@ -286,16 +277,6 @@ class ProjectInput {
       projectState.addProject(title, desc, people);
       this.clearInputs();
     }
-  }
-
-  //Connect submit event to submitHandler method
-  private configure() {
-    this.element.addEventListener('submit', this.submitHandler);
-  }
-
-  //Add the form to the DOM at the beginning of the host element
-  private attach() {
-    this.hostElement.insertAdjacentElement('afterbegin', this.element);
   }
 }
 
