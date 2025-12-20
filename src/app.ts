@@ -14,18 +14,28 @@ class Project {
 
 //Project State Management
 //set listener type
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
 
-class ProjectState {
+class State<T> {
+  protected listeners: Listener<T>[] = [];
+
+  //listener function called whenever state is updated
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn);
+  }
+}
+
+class ProjectState extends State<Project> {
   //initialize state
-  private listeners: Listener[] = [];
   private projects: Project[] = [];
   //declare a static property to hold the singleton instance
   private static instance: ProjectState;
 
   //prevent creating new instances
   //enforce singleton patter do only one ProjectState exsists
-  private constructor() { };
+  private constructor() {
+    super();
+  };
 
   //store instance if it exists already, else create it and store it
   static getInstance() {
@@ -34,11 +44,6 @@ class ProjectState {
     }
     this.instance = new ProjectState();
     return this.instance;
-  }
-
-  //listener function called whenever state is updated
-  addListener(listenerFn: Listener) {
-    this.listeners.push(listenerFn);
   }
 
   //create new project and update projects state with info
@@ -184,7 +189,7 @@ class ProjectList extends Componenet<HTMLDivElement, HTMLElement>{
     this.element.querySelector('ul')!.id = listId;
     this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS'; //set heading based ont project type
   }
-  
+
   //render projects 
   //loop through assigned projects and add each as an <li>
   private renderProjects() {
@@ -222,7 +227,7 @@ class ProjectInput extends Componenet<HTMLDivElement, HTMLFormElement>{
     this.element.addEventListener('submit', this.submitHandler);
   }
 
-  renderContent() {}
+  renderContent() { }
 
   //get user input, validate required fields are present and return values
   private gatherUserInput(): [string, string, number] | void {
