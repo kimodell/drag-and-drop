@@ -9,7 +9,7 @@ class Project {
     public description: string,
     public people: number,
     public status: ProjectStatus
-  ) {};
+  ) { };
 }
 
 //Project State Management
@@ -44,12 +44,12 @@ class ProjectState {
   //create new project and update projects state with info
   addProject(title: string, description: string, numOfPeople: number) {
     const newProject = new Project(
-      Math.random().toString(), 
-      title, 
-      description, 
-      numOfPeople, 
+      Math.random().toString(),
+      title,
+      description,
+      numOfPeople,
       ProjectStatus.Active
-      );
+    );
 
     this.projects.push(newProject);
     for (const listenerFn of this.listeners) {
@@ -113,42 +113,53 @@ function autobind(
   return adjDescriptor;
 }
 
-//ProjectList Class
-//render list of porojects 
-class ProjectList {
+//Componenet Base Class
+abstract class Componenet<T extends HTMLElement, U extends HTMLElement> {
   //Reference to HTML elements required
   templateElement: HTMLTemplateElement;
-  hostElement: HTMLDivElement;
-  element: HTMLElement;
+  hostElement: T;
+  element: U;
 
+  constructor(
+    templateId: string,
+    hostElementId: string,
+    insertAtStart: boolean,
+    newElementId?: string,
+  ) {
+    //Grab template and div from DOM
+    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+    this.hostElement = document.getElementById(hostElementId)! as T;
+
+    //Clone template content by extracting element from template ans setting type based on id
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.element = importedNode.firstElementChild as U;
+    if (newElementId) {
+      this.element.id = newElementId;
+    }
+    this.attach(insertAtStart);
+  }
+
+  //insert project list element at the end of the #app element
+  private attach(insertAtBeginning: boolean) {
+    this.hostElement.insertAdjacentElement(
+      insertAtBeginning ? 'afterbegin' : 'beforeend',
+      this.element);
+  }
+
+  abstract configure(): void;
+  abstract renderContent(): void;
+}
+
+//ProjectList Class
+//render list of projects 
+class ProjectList extends Componenet<HTMLDivElement, HTMLElement>{
   assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
-    //Grab template and div from DOM
-    this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    super('project-list', 'app', false, `${type}-projects`);
     this.assignedProjects = [];
 
-    //Clone template content
-    const importedNode = document.importNode(this.templateElement.content, true);
-    //Extract first element from template
-    this.element = importedNode.firstElementChild as HTMLElement;
-    //set dynamic id based on type 
-    this.element.id = `${this.type}-projects`;
-
-    //Filter project by status, add to correct assignedProjects array based on status
-    projectState.addListener((projects: Project[]) => {
-      const releventProjects = projects.filter(prj => {
-        if (this.type === 'active') {
-          return prj.status === ProjectStatus.Active;
-        }
-          return prj.status === ProjectStatus.Finished;
-      });
-      this.assignedProjects = releventProjects;
-      this.renderProjects();
-    });
-
-    this.attach();
+    this.configure();
     this.renderContent();
   }
 
@@ -165,17 +176,26 @@ class ProjectList {
     }
   }
 
+  configure() {
+    //Filter project by status, add to correct assignedProjects array based on status
+    projectState.addListener((projects: Project[]) => {
+      const releventProjects = projects.filter(prj => {
+        if (this.type === 'active') {
+          return prj.status === ProjectStatus.Active;
+        }
+        return prj.status === ProjectStatus.Finished;
+      });
+      this.assignedProjects = releventProjects;
+      this.renderProjects();
+    });
+  };
+
   //update id and text content inside cloned template
   //create unique id for each ul element and assign it to the ul inside the project list
-  private renderContent() {
+  renderContent() {
     const listId = `${this.type}-projects-list`;
     this.element.querySelector('ul')!.id = listId;
     this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS'; //set heading based ont project type
-  }
-
-  //insert project list element at the end of the #app element
-  private attach() {
-    this.hostElement.insertAdjacentElement('beforeend', this.element);
   }
 }
 
