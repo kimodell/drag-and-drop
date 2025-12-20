@@ -1,14 +1,28 @@
+//set project status types
+enum ProjectStatus { Active, Finished };
+
+//Project type
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus
+  ) {};
+}
+
 //Project State Management
 class ProjectState {
   //initialize state
   private listeners: any[] = [];
-  private projects: any[] = [];
+  private projects: Project[] = [];
   //declare a static property to hold the singleton instance
   private static instance: ProjectState;
 
   //prevent creating new instances
   //enforce singleton patter do only one ProjectState exsists
-  private constructor() {};
+  private constructor() { };
 
   //store instance if it exists already, else create it and store it
   static getInstance() {
@@ -18,7 +32,7 @@ class ProjectState {
     this.instance = new ProjectState();
     return this.instance;
   }
-  
+
   //listener function called whenever state is updated
   addListener(listenerFn: Function) {
     this.listeners.push(listenerFn);
@@ -26,12 +40,14 @@ class ProjectState {
 
   //create new project and update projects state with info
   addProject(title: string, description: string, numOfPeople: number) {
-    const newProject = {
-      id: Math.random().toString(),
-      title: title,
-      description: description,
-      people: numOfPeople
-    };
+    const newProject = new Project(
+      Math.random().toString(), 
+      title, 
+      description, 
+      numOfPeople, 
+      ProjectStatus.Active
+      );
+
     this.projects.push(newProject);
     for (const listenerFn of this.listeners) {
       listenerFn(this.projects.slice());
@@ -102,7 +118,7 @@ class ProjectList {
   hostElement: HTMLDivElement;
   element: HTMLElement;
 
-  assignedProjects: any[];
+  assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
     //Grab template and div from DOM
