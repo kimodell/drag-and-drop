@@ -155,7 +155,9 @@ class ProjectList {
   //render projects 
   //loop through assigned projects and add each as an <li>
   private renderProjects() {
-    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    const listEl = document.getElementById(`${this.type}-projects-list`
+    )! as HTMLUListElement;
+    listEl.innerHTML = '';   //clear existing list items and re-render
     for (const prjItem of this.assignedProjects) {
       const listItem = document.createElement('li');
       listItem.textContent = prjItem.title;
