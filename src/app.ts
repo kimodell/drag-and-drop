@@ -13,9 +13,12 @@ class Project {
 }
 
 //Project State Management
+//set listener type
+type Listener = (items: Project[]) => void;
+
 class ProjectState {
   //initialize state
-  private listeners: any[] = [];
+  private listeners: Listener[] = [];
   private projects: Project[] = [];
   //declare a static property to hold the singleton instance
   private static instance: ProjectState;
@@ -34,7 +37,7 @@ class ProjectState {
   }
 
   //listener function called whenever state is updated
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
   }
 
@@ -133,7 +136,7 @@ class ProjectList {
     //set dynamic id based on type 
     this.element.id = `${this.type}-projects`;
 
-    projectState.addListener((projects: any[]) => {
+    projectState.addListener((projects: Project[]) => {
       this.assignedProjects = projects;
       this, this.renderProjects();
     });
