@@ -161,6 +161,15 @@ abstract class Componenet<T extends HTMLElement, U extends HTMLElement> {
 class ProjectItem extends Componenet<HTMLUListElement, HTMLLIElement> {
   private project: Project;
 
+  //getter for rendering specific text based on number of people
+  get persons() {
+    if (this.project.people === 1) {
+      return '1 person';
+    } else {
+      return `${this.project.people} people`;
+    };
+  };
+
   constructor(hostId: string, project: Project) {
     super('single-project', hostId, false, project.id);
     this.project = project;
@@ -173,7 +182,7 @@ class ProjectItem extends Componenet<HTMLUListElement, HTMLLIElement> {
 
   renderContent() {
     this.element.querySelector('h2')!.textContent = this.project.title;
-    this.element.querySelector('h3')!.textContent = this.project.people.toString();
+    this.element.querySelector('h3')!.textContent = this.persons + ' assigned';
     this.element.querySelector('p')!.textContent = this.project.description;
   }
 }
