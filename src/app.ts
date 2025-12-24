@@ -218,7 +218,7 @@ class ProjectItem extends Componenet<HTMLUListElement, HTMLLIElement> implements
 
 //ProjectList Class
 //render list of projects 
-class ProjectList extends Componenet<HTMLDivElement, HTMLElement>{
+class ProjectList extends Componenet<HTMLDivElement, HTMLElement> implements DragTarget{
   assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
@@ -229,7 +229,28 @@ class ProjectList extends Componenet<HTMLDivElement, HTMLElement>{
     this.renderContent();
   }
 
+  //utilize droppable css class to render where the droppable area is located
+  @autobind
+  dragOverHandler(_: DragEvent) {
+    const listEl = this.element.querySelector('ul')!;
+    listEl.classList.add('droppable');
+  };
+
+  dropHander(_: DragEvent) {};
+
+  //remove css droppable class after drop event
+  @autobind
+  dragLeaveHander(_: DragEvent) {
+    const listEl = this.element.querySelector('ul')!;
+    listEl.classList.remove('droppable');  
+  };
+
   configure() {
+    this.element.addEventListener('dragover', this.dragOverHandler);
+    this.element.addEventListener('dragleave', this.dragLeaveHander);
+   // this.element.addEventListener('drop', this.dropHandler);
+
+
     //Filter project by status, add to correct assignedProjects array based on status
     projectState.addListener((projects: Project[]) => {
       const releventProjects = projects.filter(prj => {
