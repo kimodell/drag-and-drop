@@ -1,3 +1,19 @@
+//drag and drop interfaces
+interface Draggable {
+  //event listeners to start and end drag functionality
+  dragStartHandler(event: DragEvent): void;
+  dragEndHandler(event: DragEvent): void;
+}
+
+interface DragTarget {
+  //handler to ensure drag target is valid/permit drop
+  dragOverHandler(event: DragEvent): void;
+  //handler to handle actualy drop
+  dropHander(event: DragEvent): void;
+  //handler for visual feedback following drop
+  dragLeaveHander(event: DragEvent): void;
+}
+
 //set project status types
 enum ProjectStatus { Active, Finished };
 
@@ -158,7 +174,7 @@ abstract class Componenet<T extends HTMLElement, U extends HTMLElement> {
 
 //Project item class
 //render each project item with title, people and description from project class
-class ProjectItem extends Componenet<HTMLUListElement, HTMLLIElement> {
+class ProjectItem extends Componenet<HTMLUListElement, HTMLLIElement> implements Draggable {
   private project: Project;
 
   //getter for rendering specific text based on number of people
@@ -177,8 +193,21 @@ class ProjectItem extends Componenet<HTMLUListElement, HTMLLIElement> {
     this.configure();
     this.renderContent();
   };
+  
+  @autobind
+  dragStartHandler(event: DragEvent) {
+    console.log(event);
+    
+  };
 
-  configure() { }
+  dragEndHandler(_: DragEvent) {
+    console.log('Drag End');
+  };
+
+  configure() {
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
+  }
 
   renderContent() {
     this.element.querySelector('h2')!.textContent = this.project.title;
