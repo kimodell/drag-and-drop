@@ -3,25 +3,10 @@
 ///<reference path="project-model.ts"/>
 ///<reference path="project-state.ts"/>
 ///<reference path="validation.ts"/>
+///<reference path="autobind-decorator.ts"/>
 
 namespace App {
-  //autobind decorator
-  //ensures this always refers to the correct class instance
-  function autobind(
-    _: any,
-    _2: string,
-    descriptor: PropertyDescriptor
-  ) {
-    const originalMethod = descriptor.value;
-    const adjDescriptor: PropertyDescriptor = {
-      configurable: true,
-      get() {
-        const boundFn = originalMethod.bind(this);
-        return boundFn;
-      }
-    };
-    return adjDescriptor;
-  }
+
 
   //Componenet Base Class
   abstract class Componenet<T extends HTMLElement, U extends HTMLElement> {
