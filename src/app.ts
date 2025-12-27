@@ -1,73 +1,10 @@
 //ts import syntax
 ///<reference path="drag-drop-interfaces.ts"/> 
 ///<reference path="project-model.ts"/>
+///<reference path="project-state.ts"/>
 
 namespace App {
 
-  //Project State Management
-  //set listener type
-  type Listener<T> = (items: T[]) => void;
-
-  class State<T> {
-    protected listeners: Listener<T>[] = [];
-
-    //listener function called whenever state is updated
-    addListener(listenerFn: Listener<T>) {
-      this.listeners.push(listenerFn);
-    }
-  }
-
-  class ProjectState extends State<Project> {
-    //initialize state
-    private projects: Project[] = [];
-    //declare a static property to hold the singleton instance
-    private static instance: ProjectState;
-
-    //prevent creating new instances
-    //enforce singleton patter do only one ProjectState exsists
-    private constructor() {
-      super();
-    };
-
-    //store instance if it exists already, else create it and store it
-    static getInstance() {
-      if (this.instance) {
-        return this.instance;
-      }
-      this.instance = new ProjectState();
-      return this.instance;
-    }
-
-    //create new project and update projects state with info
-    addProject(title: string, description: string, numOfPeople: number) {
-      const newProject = new Project(
-        Math.random().toString(),
-        title,
-        description,
-        numOfPeople,
-        ProjectStatus.Active
-      );
-
-      this.projects.push(newProject);
-      this.updateListners();
-    };
-
-    moveProject(projectId: string, newStatus: ProjectStatus) {
-      const project = this.projects.find(prj => prj.id === projectId);
-      if (project && project.status !== newStatus) {
-        project.status = newStatus;
-        this.updateListners();
-      }
-    };
-
-    private updateListners() {
-      for (const listenerFn of this.listeners) {
-        listenerFn(this.projects.slice());
-      }
-    }
-  }
-
-  const projectState = ProjectState.getInstance();
 
   //validation 
   interface Validatable {
