@@ -1,23 +1,8 @@
 //ts import syntax
 ///<reference path="drag-drop-interfaces.ts"/> 
+///<reference path="project-model.ts"/>
 
 namespace App {
-
-
-
-  //set project status types
-  enum ProjectStatus { Active, Finished };
-
-  //Project type
-  class Project {
-    constructor(
-      public id: string,
-      public title: string,
-      public description: string,
-      public people: number,
-      public status: ProjectStatus
-    ) { };
-  }
 
   //Project State Management
   //set listener type
