@@ -1,13 +1,11 @@
 //ts import syntax
-///<reference path="drag-drop-interfaces.ts"/> 
-///<reference path="project-model.ts"/>
-///<reference path="project-state.ts"/>
-///<reference path="validation.ts"/>
-///<reference path="autobind-decorator.ts"/>
+///<reference path="models/drag-drop.ts"/> 
+///<reference path="models/project.ts"/>
+///<reference path="state/project-state.ts"/>
+///<reference path="util/validation.ts"/>
+///<reference path="decorators/autobind.ts"/>
 
 namespace App {
-
-
   //Componenet Base Class
   abstract class Componenet<T extends HTMLElement, U extends HTMLElement> {
     //Reference to HTML elements required
